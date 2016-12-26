@@ -12,12 +12,18 @@ const app = module.exports = koa();
 // Logger
 app.use(logger());
 
+/**
+ *  koa-generater route example
+ *
 app.use(route.get('/', messages.home));
 app.use(route.get('/messages', messages.list));
 app.use(route.get('/messages/:id', messages.fetch));
 app.use(route.post('/messages', messages.create));
 app.use(route.get('/async', messages.delay));
 app.use(route.get('/promise', messages.promise));
+**/
+
+app.use(route.get('/', events.home));
 
 // Serve static files
 app.use(serve(path.join(__dirname, 'public')));
