@@ -16,7 +16,6 @@ module.exports.home = function *home(ctx) {
 };
 
 module.exports.dailyProductionEvents = function *dailyProductionEvents(ctx) {
-  //this.body = yield render('dp', { 'messages': messages });
   var data = JSON.parse(
     require('fs').readFileSync(
       require('path').resolve(
