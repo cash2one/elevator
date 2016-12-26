@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>埋点量关系图</title>
+  <link rel="stylesheet" href="./css/doc-style.css"/>
+  <script src="./js/jquery-1-11-1.js"></script>
+  <script src="./js/g2.js"></script>
+</head>
+<body>
+
+<div id="c0"></div>
+<!--<h2>埋点总量监控</h2>-->
+<div id="c1"></div>
+<!--<hr>-->
+<h2>单条埋点量级监控</h2>
+<div id="c2"></div>
+<hr>
+
+<h2>eventv4 daily count</h2>
+<div id="historyViz"></div>
+<hr>
+<h2>collections count</h2>
+<div id="collectionCount"></div>
+
+<script src="./js/slider.js"></script>
+
+<script>
+
+  $.getJSON('http://localhost:3000/dailyproductioncollect',function(data){
+    var dataLength = data.length;
+    console.log(dataLength);
+    var Frame = G2.Frame;
+    var frame = new Frame(data);
+    frame = Frame.combinColumns(frame, ['app', 'backend','total'], 'value', 'event type', 'date');
+    var chart = new G2.Chart({
+      id: 'c0',
+      width : 1000,
+      height : 500,
+      plotCfg: {
+        margin: [20, 120, 80, 80]
+      }
+    });
+    chart.setMode('select'); // 开启框选模式
+    chart.select('rangeX'); // 选择框选交互形式
+    chart.source(frame, {
+      date: {
+        type: 'time',
+        mask: 'yyyy.mm.dd',
+        tickCount: dataLength
+      },
+      value: {
+        alias: '日生产埋点量级监控'
+      }
+    });
+    chart.axis('date', {
+      line: null,
+      tickLine: {
+        stroke: '#000',
+        value: 6 // 刻度线长度
+      },
+      title: null
+    });
+    chart.axis('value', {
+      tickLine: {
+        stroke: '#000',
+        value: 6 // 刻度线长度
+      },
+      labels: {
+        label: {
+          fill: '#000'
+        }
+      },
+      line: {
+        stroke: '#000'
+      },
+      grid: null
+    });
+    chart.line().position('date*value').color('event type', ['#1f77b4', '#ff7f0e', '#2ca02c']).shape('spline').size(2);
+    chart.render();
+
+    chart.on('plotdbclick', function(ev) {
+      chart.set('filters', {});
+      chart.repaint();
+    });
+  });
+
+
+
+  $('<div id="slider"></div>').insertAfter('#c1');
+
+  //    $.getJSON('./rain-flow-test.json',function(data){
+  $.getJSON('http://localhost:3000/events',function(data){
+
+    var flowChart = new G2.Chart({
+      id: 'c1',
+      width: 1000,
+      height: 250
+    });
+
+    flowChart.source(data, {
+      time: {
+        type: 'time',
+        tickCount: 12,
+        mask: 'm/dd H:mm'
+      }
+    });
+
+    flowChart.axis('time', {
+      title: null,
+      labelOffset: 35
+    });
+
+    flowChart.axis('flow', {
+      title: null
+    });
+
+    flowChart.line().position('time*flow').color('#B03A5B').size(2);
+    flowChart.guide().text(['min', 'max'], '埋点总量(<count>/10m)');
+
+    var rainChart = new G2.Chart({
+      id: 'c1',
+      width: 1000,
+      height: 220,
+      plotCfg: {
+        margin: [20, 80]
+      }
+    });
+
+    rainChart.source(data, {
+      time: {
+        type: 'time',
+        tickCount: 12,
+        mask: 'm/dd H:mm'
+      }
+    });
+
+    rainChart.axis('time', {
+      title: null,
+      labels: null
+    });
+
+    rainChart.axis('rain', {
+      title: null
+    });
+
+    rainChart.line().position('time*rain').color('#293c55').size(2);
+    rainChart.guide().text(['min', 'max'], '后端埋点总量(<count>/10m)');
+
+
+    $.getJSON('http://localhost:3000/single', function(data) {
+      var Frame = G2.Frame;
+      var frame = new Frame(data);
+      frame = Frame.combinColumns(frame, ['enterHome', 'quitedVideo', 'startVideo'], 'value', 'city', 'date');
+      var chart = new G2.Chart({
+        id: 'c2',
+        width: 1000,
+        height: 220,
+        plotCfg: {
+          margin: [20, 80, 30]
+        }
+      });
+      chart.setMode('select'); // 开启框选模式
+      chart.select('rangeX'); // 选择框选交互形式
+      chart.source(frame, {
+        date: {
+          type: 'time'
+        },
+        value: {
+          alias: 'Temperature, ºF'
+        }
+      });
+      chart.legend({
+        position: 'top'
+      });
+      chart.axis('date', {
+        line: {
+          stroke: '#000'
+        },
+        tickLine: {
+          stroke: '#000',
+          value: 6 // 刻度线长度
+        },
+        title: null,
+        labels: {
+          label: {
+            textAlign: 'start'
+          }
+        }
+      });
+      chart.axis('value', {
+        title: null,
+        tickLine: {
+          stroke: '#000',
+          value: 6 // 刻度线长度
+        },
+        labels: {
+          label: {
+            fill: '#000'
+          }
+        },
+        line: {
+          stroke: '#000'
+        },
+        grid: null
+      });
+      chart.line().position('date*value').color('city', ['#1f77b4', '#ff7f0e', '#2ca02c']).shape('spline').size(2);
+      chart.render();
+      // 监听双击事件，这里用于复原图表
+      chart.on('plotdbclick', function(ev) {
+        chart.set('filters', {});
+        chart.repaint();
+      });
+    });
+    //test self end
+
+    var slider = new G2.Plugin.slider({
+      domId: 'slider', //DOM id
+      width: 1000,
+      height: 30,
+      xDim: 'time',
+      yDim: 'flow',
+      charts: [flowChart, rainChart]
+    });
+
+    slider.render();
+  });
+</script>
+<!-- G2 code end -->
+
+<!-- start of test code -->
+<script>
+
+  $.getJSON('http://localhost:3000/dbcount', function (data) {
+
+    var chart = new G2.Chart({
+      id: 'collectionCount', // 指定图表容器 ID
+      width: 900, // 指定图表宽度
+      height: 400 // 指定图表高度
+    });
+
+    chart.source(data, {
+      genre: {
+        alias: '日常collections' // 列定义，定义该属性显示的别名
+      },
+      sold: {
+        alias: '量级'
+      }
+    });
+
+    chart.interval().position('genre*sold').color('genre')
+    chart.render();
+  });// G2 对数据源格式的要求，仅仅是 JSON 数组，数组的每个元素是一个标准 JSON 对象。
+
+  $.getJSON('http://localhost:3000/dailycount', function (historyData) {
+    // Step 1: 创建 Chart 对象
+    var historyChart = new G2.Chart({
+      id: 'historyViz',
+      width: 1000, // 指定图表宽度
+      height: 400 // 指定图表高度
+    });
+
+    // Step 2: 载入数据源
+    historyChart.source(historyData, {
+      date: {
+        alias: 'eventV4近期数据条数count'
+      },
+      count: {
+        alias: '量级'
+      }
+    });
+
+    // Step 3：创建图形语法，绘制柱状图，由 genre 和 sold 两个属性决定图形位置，genre 映射至 x 轴，sold 映射至 y 轴
+    historyChart.line().position('date*count')
+    // Step 4: 渲染图表
+    historyChart.render();
+  });
+
+
+</script>
+<!-- end of test code -->
+
+</body>
+</html>
