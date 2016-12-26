@@ -25,6 +25,7 @@ app.use(route.get('/promise', messages.promise));
 
 app.use(route.get('/', events.home));
 app.use(route.get('/daily', events.dailyProductionEvents));
+app.use(route.get('/each', events.dailyEachEvents));
 
 // Serve static files
 app.use(serve(path.join(__dirname, 'public')));

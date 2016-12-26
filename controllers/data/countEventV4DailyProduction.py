@@ -69,6 +69,16 @@ class collection_util(object):
             }
         })
 
+    def count_event_by_key(sefl, start, end, event_name):
+        collecion = self.collecion_instance
+        return collecion.count({
+            "serverTime": {
+                "$gte": start,
+                "$lt": end
+            },
+            "eventKey": event_name
+        })
+
 """
     Part.3 mongo instance
 """

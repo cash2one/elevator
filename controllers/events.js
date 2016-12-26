@@ -25,3 +25,14 @@ module.exports.dailyProductionEvents = function *dailyProductionEvents(ctx) {
     ));
   this.body = data;
 };
+
+module.exports.dailyEachEvents = function *dailyEachEvents(ctx) {
+  var data = JSON.parse(
+    require('fs').readFileSync(
+      require('path').resolve(
+        __dirname, 'data/eventV4DailyEachEventsCount.json'
+      ),
+      'utf8'
+    ));
+  this.body = data;
+};

@@ -1,6 +1,5 @@
 $.getJSON('http://localhost:3000/daily',function(data){
   var dataLength = data.length;
-  console.log(dataLength);
   var Frame = G2.Frame;
   var frame = new Frame(data);
   frame = Frame.combinColumns(frame, ['app', 'backend','total'], 'value', 'event type', 'date');
