@@ -32,7 +32,7 @@ db_events_v4 = db_host["eventsV4"]
 db_events_v4_collection = db_events_v4["eventV4"]
 
 TODAY_DATE = datetime.datetime.now()
-END_DATE = datetime.datetime(TODAY_DATE.year, TODAY_DATE.month, TODAY_DATE.day, 16) - datetime.timedelta(days=1)
+END_DATE = datetime.datetime(TODAY_DATE.year, TODAY_DATE.month, TODAY_DATE.day)
 START_DATE = END_DATE - datetime.timedelta(days=1)
 
 """
@@ -90,7 +90,7 @@ daily_production_event_count_app = events_v4_instance.count_docs_by_platform(STA
 daily_production_event_count_backend = events_v4_instance.count_docs_by_platform(START_DATE, END_DATE, "backend")
 
 this_day_dict = {
-    "date": END_DATE.strftime("%Y-%m-%d"),
+    "date": START_DATE.strftime("%Y-%m-%d"),
     "app": daily_production_event_count_app,
     "backend": daily_production_event_count_backend,
     "total": daily_production_event_count
